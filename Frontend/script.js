@@ -1,5 +1,23 @@
 "use strict";
 
+const app = VUE.createApp({
+  data() {
+    return {
+      todo: [],
+    };
+  },
+  computed: {},
+  method: {},
+  created() {
+    fetch("http://localhost:4730/todos")
+      .then((response) => response.json())
+      .then((todos) => {
+        this.todo = todos;
+      });
+  },
+});
+
+/*
 //Hilfsfunktionen
 function selectByID(ID) {
   return document.getElementById(ID);
@@ -133,3 +151,4 @@ function addNewToDo() {
 }
 
 render();
+*/
