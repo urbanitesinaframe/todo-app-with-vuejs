@@ -1,21 +1,93 @@
 "use strict";
 
-const app = VUE.createApp({
+"use strict";
+
+const app = Vue.createApp({
   data() {
     return {
-      todo: [],
+      todoList: [],
+      newTodoText: "",
+      currentFilter: "All",
     };
   },
-  computed: {},
-  method: {},
+  computed: {
+    filteredTodoList() {
+      return this.todoList.filter((todo) => {
+        if (this.currentFilter === "Open") {
+          return todo.done === false;
+        } else if (this.currentFilter === "Done") {
+          return todo.done === true;
+        } else {
+          return true;
+        }
+      });
+    },
+    filteredDone() {
+      return this.todoList.filter((todo) => {
+        return todo.done === true;
+      });
+    },
+  },
+  methods: {
+    newTodo() {
+      const newEntry = { description: this.newTodoText, done: false };
+      fetch("http://localhost:4730/todos", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify(newEntry),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+        })
+        .then((newTodoFromApi) => {
+          this.todoList.push(newTodoFromApi);
+        });
+    },
+    changeDone(todo) {
+      const updatedEntry = { description: todo.description, done: !todo.done };
+      fetch(`http://localhost:4730/todos/${todo.id}`, {
+        method: "PUT",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify(updatedEntry),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+        })
+        .then((updatedTodoFromApi) => {
+          todo.done = updatedTodoFromApi.done;
+        });
+    },
+    deleteDone() {
+      let fetchedPromises = [];
+      for (let i = this.todoList.length - 1; i >= 0; i--) {
+        if (this.todoList[i].done === true) {
+          let id = this.todoList[i].id;
+
+          fetchedPromises.push(
+            fetch(`http://localhost:4730/todos/${id}`, {
+              method: "DELETE",
+            })
+          );
+        }
+      }
+
+      Promise.all(fetchedPromises).then(() => {
+        location.reload();
+      });
+    },
+  },
   created() {
     fetch("http://localhost:4730/todos")
       .then((response) => response.json())
       .then((todos) => {
-        this.todo = todos;
+        this.todoList = todos;
       });
   },
-});
+}).mount("#app");
 
 /*
 //Hilfsfunktionen

@@ -24,7 +24,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     />
-    <title>ToDo-App V2</title>
+    <title>ToDo-App V3</title>
     <link
         rel="stylesheet"
         href="style.css"
@@ -35,12 +35,14 @@
     <header>
         <h1>ToDo App</h1>
     </header>
-    <main id="main">
+    <main id="app">
+        {{$data}}
         <div id="uiContainer">
             <div id="filterContainer">
                 <p>Show: </p>
                 <label for="All">All</label>
                 <input
+                    @change="currentFilter = 'All'"
                     type="radio"
                     id="All"
                     name="filter"
@@ -48,12 +50,14 @@
                 >
                 <label for="Open">Open</label>
                 <input
+                    @change="currentFilter = 'Open'"
                     type="radio"
                     id="Open"
                     name="filter"
                 >
                 <label for="Done">Done</label>
                 <input
+                    @change="currentFilter = 'Done'"
                     type="radio"
                     id="Done"
                     name="filter"
@@ -62,18 +66,37 @@
             </div>
             <div class="inputContainer">
                 <input
+                    v-model="newTodoText"
+                    @keydown.enter="newTodo"
                     type="text"
                     id="toDoInput"
                     name="description"
                     placeholder="Please type in your task"
                 >
-                <button id="addNewToDoBtn">Add to-do</button>
+                <button @click="newTodo">Add
+                    to-do</button>
             </div>
         </div>
         <article id="toDoListContainer">
-            <ul id="toDoList"></ul>
+            <ul id="toDoList">
+                <li
+                    v-for="todo in filteredTodoList"
+                    :key="todo.id"
+                >
+                    <label for="">{{ todo.description }}</label>
+                    <input
+                        @change="changeDone(todo)"
+                        type="checkbox"
+                        :id=todo.id
+                        :checked=todo.done
+                    >
+                </li>
+            </ul>
         </article>
-        <button id="delBtn">Delete done!</button>
+        <button
+            id="delBtn"
+            @click="deleteDone"
+        >Delete done!</button>
     </main>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="script.js"></script>
